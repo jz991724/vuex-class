@@ -1,21 +1,36 @@
-# vuex-class
+##### JS函数调用传值策略（按共享传递）
+调用函数传参时，函数接受对象实参引用的副本(既不是按值传递的对象副本，也不是按引用传递的隐式引用)。 它和按引用传递的不同在于：在共享传递中对函数形参的赋值，不会影响实参的值。
 
-> A Vue.js project
+按照个人理解 JS所有的函数调用应该都是按值传递的，如果调用时参数为一个对象，则传递过去的是对象的地址。
 
-## Build Setup
 
-``` bash
-# install dependencies
-npm install
+##### 提交载荷（Payload）究竟是什么
+Vuex的所有的mutation函数其实都是普通函数。当我们在页面发起一个commit时。会被vuex监控到。执行对应的mutation函数并扩展了参数，将Preload放在了第二个参数（第一个参数就是state）。
 
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
+```javascript
+main() => {
+  const state = {}
+  this.$on('SOME_MUTATION', (preload) => {
+    SOME_MUTATION(state, preload)
+  })
+}
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+##### 发起一次commit 究竟是为了什么
+我们发起一次commit 归根到底是为了改变store中的某一个属性。如果需要改变的是store中某一个对象的属性，则需要先找到这个对象的引用然后在更改。和我们直接传递一个对象的引用去做更改是一样的。
+
+##### 传递类实例的合法性
+从JS的函数调用传值策略来看，commit的preload传递一个对象引用是完全可以的 => 类的实例也是对象的引用，所以传递一个类实例是完全没有问题的。
+
+
+##### 为什么是Class
+归根结底我们还是要讨论用Class能给我们带来什么好处。
+
+- 逻辑抽离
+- 代码易读
+
+##### 缺点
+
+- 从后端获取到数据后需要初始化为类实例
+- 仅适用于Vuex（getter/setter特性）
+
